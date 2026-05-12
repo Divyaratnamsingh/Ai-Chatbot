@@ -1,0 +1,99 @@
+AI Mental Health Wellness & Mood Tracker - Java +
+ React Architecture Plan
+ 
+Project Overview
+Build an AI-powered mental wellness platform with chatbot support, mood tracking, journaling, wellness
+recommendations, and emotional analytics using Java backend and React frontend technologies.
+Frontend Architecture (React)
+Framework: React.js with Next.js
+UI Library: Material UI or Tailwind CSS
+State Management: Redux Toolkit or Context API
+Charts: Recharts or Chart.js
+Authentication: JWT + OAuth Login
+Features:
+- AI Chat Interface
+- Mood Tracker Dashboard
+- Journal Screen
+- Analytics Graphs
+- Dark/Light Theme
+- Mobile Responsive UI
+Backend Architecture (Java)
+Language: Java 21
+Framework: Spring Boot
+Modules:
+- Authentication Service
+- AI Chat Service
+- Mood Tracking Service
+- Notification Service
+- Analytics Service
+- Journal Management Service
+API Type: REST APIs + WebSocket support
+Database Design
+PostgreSQL: Main relational database for users, mood logs, and analytics.
+MongoDB: Chat history and journaling content.
+Redis: Session management and caching.
+Vector Database: Pinecone or Qdrant for AI memory/search.
+AI Integration
+
+AI Providers: OpenAI GPT APIs or Gemini APIs.
+AI Features:
+- Emotion Detection
+- Personalized Responses
+- Mood Analysis
+- Journaling Suggestions
+- Stress Detection
+- Wellness Recommendations
+System Architecture
+React Frontend → API Gateway → Spring Boot Services → AI Layer → Databases → Analytics Engine
+Security & Privacy
+- JWT Authentication
+- HTTPS Encryption
+- Secure Password Hashing
+- Role-Based Access Control
+- GDPR-style Privacy Controls
+- User Data Export/Delete
+Main Features
+1. AI Chatbot
+Emotional wellness conversations and coping suggestions.
+2. Mood Tracker
+Daily mood logging with graphs and insights.
+3. Journal Assistant
+AI-powered journaling prompts and emotional summaries.
+4. Wellness Hub
+Meditation, breathing exercises, affirmations, and sleep support.
+5. Analytics Dashboard
+Weekly and monthly emotional trend reports.
+Deployment
+Frontend Hosting: Vercel or Netlify
+Backend Hosting: AWS EC2 or Kubernetes
+Containerization: Docker
+CI/CD: GitHub Actions + Jenkins
+
+Development Roadmap
+Phase 1 (MVP):
+React frontend, Spring Boot backend, chatbot, mood tracking, and authentication.
+Phase 2:
+AI personalization, analytics, and journaling features.
+Phase 3:
+Voice AI, notifications, therapist integration, and predictive analytics.
+Recommended Folder Structure
+Frontend:
+/components
+/pages
+/services
+/redux
+/hooks
+/utils
+Backend:
+/controller
+/service
+/repository
+/model
+/security
+/config
+Recommended MVP Stack
+Frontend: React + Tailwind CSS
+Backend: Spring Boot
+Database: PostgreSQL + MongoDB
+AI: OpenAI APIs
+Deployment: Docker + AWS
