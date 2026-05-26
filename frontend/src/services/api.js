@@ -16,6 +16,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Automatically logout user on 401/403 unauthorized errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      localStorage.removeItem('mindwell_user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 // Auth
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),

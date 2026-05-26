@@ -1,16 +1,47 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Box, TextField, IconButton, Typography, Avatar, Paper,
-  Chip, CircularProgress, Tooltip, Button
+  Chip, CircularProgress, Tooltip, Button,
+  Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
-import { Send, DeleteOutlined, SmartToy, Person } from '@mui/icons-material';
+import { Send, DeleteOutlined, SmartToy, Person, VpnKey } from '@mui/icons-material';
 import { chatAPI } from '../services/api';
+
+// Typewriter effect component for assistant responses
+function Typewriter({ text, speed = 8, onType }) {
+  const [displayedText, setDisplayedText] = useState('');
+  
+  // Use a ref to capture the latest onType callback to avoid resetting the typing interval
+  const onTypeRef = useRef(onType);
+  useEffect(() => {
+    onTypeRef.current = onType;
+  }, [onType]);
+
+  useEffect(() => {
+    setDisplayedText('');
+    let currentIndex = 0;
+    const timer = setInterval(() => {
+      if (currentIndex < text.length) {
+        const char = text.charAt(currentIndex);
+        setDisplayedText((prev) => prev + char);
+        currentIndex++;
+        if (onTypeRef.current) onTypeRef.current();
+      } else {
+        clearInterval(timer);
+      }
+    }, speed);
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return <>{displayedText}</>;
+}
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [lastResponseId, setLastResponseId] = useState(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -42,12 +73,13 @@ export default function ChatPage() {
     try {
       const res = await chatAPI.send(text);
       // Replace temp message and add AI response
+      setLastResponseId(res.data.aiMessage._id);
       setMessages(prev => [
         ...prev.filter(m => m._id !== tempUserMsg._id),
         res.data.userMessage,
         res.data.aiMessage
       ]);
-    } catch {
+    } catch (err) {
       setMessages(prev => [
         ...prev,
         { _id: Date.now() + 1, role: 'assistant', content: "I'm having trouble connecting right now. Please try again.", createdAt: new Date().toISOString() }
@@ -172,7 +204,16 @@ export default function ChatPage() {
                   }),
                 }}>
                   <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
-                    {msg.content}
+                    {msg.role === 'assistant' && msg._id === lastResponseId ? (
+                      <Typewriter
+                        text={msg.content}
+                        onType={() => {
+                          messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+                        }}
+                      />
+                    ) : (
+                      msg.content
+                    )}
                   </Typography>
                 </Paper>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5, px: 0.5 }}>

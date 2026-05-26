@@ -1,9 +1,11 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const ChatMessage = require('../models/ChatMessage');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
+
 
 // POST /api/auth/register
 const register = async (req, res) => {
@@ -55,6 +57,9 @@ const login = async (req, res) => {
     }
 
     const token = generateToken(user._id);
+
+    // Clear chat history on login
+    await ChatMessage.deleteMany({ userId: user._id });
 
     res.json({
       _id: user._id,

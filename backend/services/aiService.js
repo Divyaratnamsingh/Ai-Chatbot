@@ -6,8 +6,9 @@ let model = null;
 const initializeAI = () => {
   if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here') {
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    console.log('✅ Gemini AI initialized');
+    const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+    model = genAI.getGenerativeModel({ model: modelName });
+    console.log(`✅ Gemini AI initialized with model: ${modelName}`);
     return true;
   }
   console.log('⚠️  Gemini API key not configured — using fallback responses');
@@ -25,6 +26,7 @@ const SYSTEM_PROMPT = `You are MindWell, a compassionate and empathetic AI menta
 7. ALWAYS recommend professional help when users express severe distress, self-harm, or suicidal thoughts
 8. Keep responses concise (2-4 paragraphs max) and conversational
 9. Use a warm, supportive, non-judgmental tone
+10. NEVER use Markdown formatting such as asterisks ('*' or '**') in your responses. Always use clean plain text. For lists, use simple numbers (e.g. 1, 2) or dashes (-) without any star prefix.
 
 CRISIS RESPONSE: If a user mentions self-harm, suicide, or severe crisis, immediately provide:
 - National Suicide Prevention Lifeline: 988
@@ -93,7 +95,10 @@ const getAIResponse = async (userMessage, conversationHistory = []) => {
     });
 
     const result = await chat.sendMessage(userMessage);
-    const response = result.response.text();
+    let response = result.response.text();
+    
+    // Clean up response: strip all markdown asterisks
+    response = response.replace(/\*/g, '');
 
     return { response, emotion };
   } catch (error) {
@@ -124,7 +129,8 @@ const getJournalPrompt = async () => {
     const result = await model.generateContent(
       'Generate a single thoughtful, introspective journaling prompt focused on mental wellness, self-reflection, or emotional growth. Keep it under 2 sentences. Do not include any prefix like "Prompt:" — just the prompt itself.'
     );
-    return result.response.text().trim();
+    let text = result.response.text().trim();
+    return text.replace(/\*/g, '');
   } catch (error) {
     return "What emotions have been visiting you today? Take a moment to sit with them without judgment.";
   }
@@ -138,7 +144,8 @@ const getWellnessInsight = async (moodData) => {
   try {
     const prompt = `Based on this mood data from the past week, provide a brief, actionable wellness insight (2-3 sentences max). Be warm and supportive. Mood data: ${JSON.stringify(moodData)}`;
     const result = await model.generateContent(prompt);
-    return result.response.text().trim();
+    let text = result.response.text().trim();
+    return text.replace(/\*/g, '');
   } catch (error) {
     return "Keep tracking your moods — self-awareness is the first step toward emotional wellness. You're doing great by showing up for yourself!";
   }
