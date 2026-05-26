@@ -1,4 +1,5 @@
 const ChatMessage = require('../models/ChatMessage');
+const MoodEntry = require('../models/MoodEntry');
 const { getAIResponse } = require('../services/aiService');
 
 // POST /api/chat/send
@@ -33,6 +34,29 @@ const sendMessage = async (req, res) => {
       content: response,
       emotionDetected: emotion
     });
+
+    // Auto-log mood if a specific emotion is detected
+    if (emotion && emotion !== 'neutral') {
+      const emotionToMoodMap = {
+        happy: 5,
+        calm: 4,
+        confused: 3,
+        anxious: 2,
+        angry: 2,
+        sad: 1
+      };
+      const moodValue = emotionToMoodMap[emotion] || 3;
+      const capitalizedEmotion = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+
+      await MoodEntry.create({
+        userId: req.user._id,
+        mood: moodValue,
+        emotions: [capitalizedEmotion],
+        note: `Chatbot auto-logged: "${message.substring(0, 450)}"`,
+        activities: ['💬 Chatbot'],
+        date: new Date()
+      });
+    }
 
     res.json({
       userMessage: {

@@ -18,6 +18,7 @@ help:
 	@echo   make start           Run both backend and frontend in production/preview mode
 	@echo   make start-backend   Start the backend server
 	@echo   make start-frontend  Preview the built frontend app
+	@echo   make test            Run backend test suite
 	@echo   make clean           Remove node_modules and build artifacts
 	@echo ======================================================================
 
@@ -58,6 +59,10 @@ start-frontend:
 start:
 	@echo 🚀 Starting backend and frontend in production/preview mode...
 	$(MAKE) -j 2 start-backend start-frontend
+
+.PHONY: test
+test:
+	cd backend && npm run test
 
 .PHONY: clean
 clean:

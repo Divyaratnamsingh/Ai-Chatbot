@@ -13,6 +13,7 @@ if "%1"=="build" goto build
 if "%1"=="start" goto start
 if "%1"=="start-backend" goto start-backend
 if "%1"=="start-frontend" goto start-frontend
+if "%1"=="test" goto test
 if "%1"=="clean" goto clean
 
 echo Unknown command: %1
@@ -31,6 +32,7 @@ echo   make build           Build the frontend production bundle
 echo   make start           Run both backend and frontend in production/preview mode
 echo   make start-backend   Start the backend server
 echo   make start-frontend  Preview the built frontend app
+echo   make test            Run backend test suite
 echo   make clean           Remove node_modules and build artifacts
 echo ======================================================================
 goto end
@@ -80,6 +82,11 @@ goto end
 echo 🚀 Starting backend and frontend in production/preview mode...
 start cmd /k "cd backend && npm start"
 start cmd /k "cd frontend && npm run preview"
+goto end
+
+:test
+cd backend && npm run test
+cd ..
 goto end
 
 :clean
