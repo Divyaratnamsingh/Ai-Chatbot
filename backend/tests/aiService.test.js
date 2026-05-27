@@ -1,4 +1,4 @@
-const { detectEmotion, getAIResponse } = require('../services/aiService');
+const { detectEmotion, getAIResponse, generateJournalEntry } = require('../services/aiService');
 
 describe('AI Service - Unit Tests', () => {
   describe('detectEmotion', () => {
@@ -51,6 +51,23 @@ describe('AI Service - Unit Tests', () => {
       expect(result.emotion).toBe('neutral');
       expect(result.response).toContain('Thank you for sharing');
       expect(result.response).not.toContain('*');
+    });
+  });
+
+  describe('generateJournalEntry (Fallback Modes)', () => {
+    test('should generate a journal draft using title only', async () => {
+      const title = 'A lovely day at the park';
+      const result = await generateJournalEntry(title);
+      expect(result).toContain(`Today, I am writing about "${title}"`);
+      expect(result).not.toContain('Reflecting on the writing prompt');
+    });
+
+    test('should generate a journal draft using title and prompt', async () => {
+      const title = 'Feeling nervous about exams';
+      const prompt = 'What is one small thing you can control today?';
+      const result = await generateJournalEntry(title, prompt);
+      expect(result).toContain(`Today, I am writing about "${title}"`);
+      expect(result).toContain(`Reflecting on the writing prompt: "${prompt}"`);
     });
   });
 });

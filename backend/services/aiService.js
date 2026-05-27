@@ -151,4 +151,30 @@ const getWellnessInsight = async (moodData) => {
   }
 };
 
-module.exports = { initializeAI, getAIResponse, detectEmotion, getJournalPrompt, getWellnessInsight };
+const generateJournalEntry = async (title, prompt) => {
+  if (!model) {
+    return `Today, I am writing about "${title}". It's a space for me to reflect on how this impacts me, my thoughts, and what steps I can take to nurture my wellness.${prompt ? ` Reflecting on the writing prompt: "${prompt}".` : ''}`;
+  }
+
+  try {
+    const aiPromptText = `You are a compassionate, empathetic AI writing assistant for a mental health wellness journal.
+The user wants help writing a journal entry.
+Title/Topic of the entry: "${title}"
+${prompt ? `Selected journal prompt/context: "${prompt}"` : ''}
+
+Please generate a thoughtful, reflective, and empathetic journal entry written from the user's perspective (in the first person "I").
+Keep it personal, introspective, and wellness-focused.
+Length: 2-3 paragraphs (about 100-150 words).
+Avoid any introductory text (like "Here is your journal entry:") or markdown formatting (specifically, do not use any asterisks * or **). Provide only the journal entry text itself.`;
+
+    const result = await model.generateContent(aiPromptText);
+    let text = result.response.text().trim();
+    return text.replace(/\*/g, '');
+  } catch (error) {
+    console.error('Error generating journal entry:', error);
+    return `Today, I am reflecting on "${title}".${prompt ? ` I am also thinking about: "${prompt}".` : ''} It's important for me to give myself the space to write and understand my feelings.`;
+  }
+};
+
+module.exports = { initializeAI, getAIResponse, detectEmotion, getJournalPrompt, getWellnessInsight, generateJournalEntry };
+

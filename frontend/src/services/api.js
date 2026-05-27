@@ -61,6 +61,7 @@ export const journalAPI = {
   update: (id, data) => api.put(`/journal/${id}`, data),
   delete: (id) => api.delete(`/journal/${id}`),
   getPrompt: () => api.post('/journal/prompt'),
+  generateEntry: (data) => api.post('/journal/generate-entry', data),
 };
 
 // Analytics

@@ -1,5 +1,5 @@
 const JournalEntry = require('../models/JournalEntry');
-const { getJournalPrompt } = require('../services/aiService');
+const { getJournalPrompt, generateJournalEntry } = require('../services/aiService');
 
 // POST /api/journal
 const createEntry = async (req, res) => {
@@ -108,4 +108,19 @@ const generatePrompt = async (req, res) => {
   }
 };
 
-module.exports = { createEntry, getEntries, getEntry, updateEntry, deleteEntry, generatePrompt };
+// POST /api/journal/generate-entry
+const generateEntryWithAI = async (req, res) => {
+  try {
+    const { title, prompt } = req.body;
+    if (!title) {
+      return res.status(400).json({ message: 'Title is required to generate journal entry' });
+    }
+    const content = await generateJournalEntry(title, prompt);
+    res.json({ content });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { createEntry, getEntries, getEntry, updateEntry, deleteEntry, generatePrompt, generateEntryWithAI };
+

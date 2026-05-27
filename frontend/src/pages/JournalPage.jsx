@@ -20,6 +20,7 @@ export default function JournalPage() {
   const [saving, setSaving] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [promptLoading, setPromptLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => { fetchEntries(); }, []);
 
@@ -66,6 +67,24 @@ export default function JournalPage() {
       setAiPrompt(res.data.prompt);
     } catch { setAiPrompt("What are three things you're grateful for today?"); }
     setPromptLoading(false);
+  };
+
+  const generateAIEntry = async () => {
+    if (!title.trim()) {
+      return toast.error('Please enter a title or topic first so the AI knows what to write about!');
+    }
+    if (content.trim() && !window.confirm('This will replace your current journal entry content. Do you want to proceed?')) {
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const res = await journalAPI.generateEntry({ title, prompt: aiPrompt });
+      setContent(res.data.content);
+      toast.success('Journal entry generated! 📝');
+    } catch {
+      toast.error('Failed to generate entry with AI');
+    }
+    setAiLoading(false);
   };
 
   const resetForm = () => { setEditId(null); setTitle(''); setContent(''); setTags([]); setTagInput(''); setAiPrompt(''); };
@@ -150,7 +169,34 @@ export default function JournalPage() {
             </Box>
             {aiPrompt && <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>"{aiPrompt}"</Typography>}
           </Box>
-          <TextField fullWidth label="Title" value={title} onChange={(e) => setTitle(e.target.value)} sx={{ mb: 2 }} />
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2, alignItems: 'stretch' }}>
+            <TextField 
+              fullWidth 
+              label="Title" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+              sx={{ flexGrow: 1 }}
+            />
+            <Button
+              variant="outlined"
+              onClick={generateAIEntry}
+              disabled={aiLoading}
+              startIcon={aiLoading ? <CircularProgress size={16} color="inherit" /> : <AutoAwesome />}
+              sx={{
+                whiteSpace: 'nowrap',
+                height: { sm: 56 },
+                borderColor: '#0f766e',
+                color: '#0f766e',
+                px: 3,
+                '&:hover': {
+                  borderColor: '#14b8a6',
+                  backgroundColor: 'rgba(15,118,110,0.05)'
+                }
+              }}
+            >
+              {aiLoading ? 'Writing...' : 'Write with AI'}
+            </Button>
+          </Box>
           <TextField fullWidth multiline rows={8} label="Write your thoughts..." value={content} onChange={(e) => setContent(e.target.value)} sx={{ mb: 2 }} />
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
             <TextField size="small" label="Add tag" value={tagInput} onChange={(e) => setTagInput(e.target.value)}
